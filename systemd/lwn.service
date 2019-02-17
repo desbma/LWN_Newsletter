@@ -1,0 +1,23 @@
+[Unit]
+Description=LWN newsletter service
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=lwn
+WorkingDirectory=~
+Type=oneshot
+ExecStart=/var/lib/lwn/pyvenv/bin/python /usr/local/bin/lwn.py -v debug
+
+# hardening
+ReadOnlyPaths=/
+ReadWritePaths=/var/lib/lwn/.cache/lwn
+PrivateTmp=true
+PrivateDevices=true
+ProtectHome=true
+SystemCallArchitectures=native
+MemoryDenyWriteExecute=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

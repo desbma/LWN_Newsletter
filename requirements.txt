@@ -1,0 +1,4 @@
+appdirs
+cssselect
+lxml
+requests

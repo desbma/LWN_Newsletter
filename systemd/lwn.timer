@@ -1,0 +1,9 @@
+[Unit]
+Description=LWN newsletter timer
+
+[Timer]
+OnCalendar=Mon..Fri *-*-* 06:00:00
+RandomizedDelaySec=20min
+
+[Install]
+WantedBy=timers.target
