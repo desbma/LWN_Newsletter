@@ -54,6 +54,7 @@ def get_rss_feed():
   logging.getLogger().info(f"GET {RSS_URL}")
   response = requests.get(RSS_URL)
   response.raise_for_status()
+  response.encoding = "utf-8"
   return response.text
 
 
