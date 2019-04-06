@@ -11,6 +11,7 @@ import json
 import logging
 import netrc
 import os
+import pickle
 import shelve
 import smtplib
 import ssl
@@ -127,7 +128,7 @@ def make_free_link(session, article_id, cache_filepath):
   return session, url
 
 
-def format_email(articles, *, base_title, addr_reply, addr_to):
+def format_email(articles, *, base_title, number, addr_reply, addr_to):
   """ Format HTML email. """
   # html
   html = ["<html><head><style>",
@@ -149,7 +150,7 @@ def format_email(articles, *, base_title, addr_reply, addr_to):
 
   # build email
   msg = email.mime.text.MIMEText(html, "html")
-  msg["Subject"] = base_title
+  msg["Subject"] = f"{base_title} #{number}"
   msg["From"] = addr_reply
   msg["Reply-To"] = addr_reply
   msg["To"] = addr_to
@@ -224,6 +225,14 @@ if __name__ == "__main__":
   os.makedirs(CACHE_DIR, exist_ok=True)
   sl_cache_filepath = os.path.join(CACHE_DIR, "subscriber_links.db")
   sent_cache_filepath = os.path.join(CACHE_DIR, "sent.db")
+  count_filepath = os.path.join(CACHE_DIR, "count.dat")
+
+  # read count
+  try:
+    with open(count_filepath, "rb") as f:
+      newsletter_count = pickle.load(f)
+  except FileNotFoundError:
+    newsletter_count = 0
 
   # read config
   config_filepath = os.path.join(CONFIG_DIR, "config.json")
@@ -252,12 +261,16 @@ if __name__ == "__main__":
     articles_to_send.reverse()
 
     if articles_to_send:
+      # update count
+      newsletter_count += 1
+
       messages = []
       for addr_to in config["recipients"]:
         # format email
         logging.getLogger().info(f"Formatting email to send to {addr_to}")
         message = format_email(articles_to_send,
                                base_title=config["subject"],
+                               number=newsletter_count,
                                addr_reply=config["reply_to"],
                                addr_to=addr_to)
         messages.append(message)
@@ -269,6 +282,10 @@ if __name__ == "__main__":
       # mark articles as sent
       for article in articles_to_send:
         sent_articles[str(article.id)] = True
+
+      # save count
+      with open(count_filepath, "wb") as f:
+        pickle.dump(newsletter_count, f, pickle.HIGHEST_PROTOCOL)
 
     else:
       logging.getLogger().info("Nothing new to send")
