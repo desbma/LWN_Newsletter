@@ -140,8 +140,6 @@ def format_email(articles, *, base_title, number, addr_reply, addr_to):
   for article in articles:
     html.append(f"<li><p><a href=\"{article.url}\">{'' if article.free else '<strong>'}{article.title}{'' if article.free else '</strong>'}</a> by {article.author} {article.date.strftime('%Y-%m-%d %H:%M')}<br>")
     desc = article.description.replace("<p>", "").replace("</p>", "").strip()
-    if desc.startswith("<p>"):
-      desc = desc[3:].lstrip()
     html.append(f"{desc}</p></li>")
   html.append("</ul>")
   html.append(f"<br><p class=\"small\">This email has been <a href=\"https://github.com/desbma/LWN_Newsletter\" title=\"Source code used to generate this email\">automatically generated</a>. If you wish to unsubscribe, contact <a href=\"mailto:{addr_reply}?subject=Unsubscribe from {base_title}\">{addr_reply}</a>.<br>"
