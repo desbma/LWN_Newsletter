@@ -139,7 +139,7 @@ def format_email(articles, *, base_title, number, addr_reply, addr_to):
           "Recent articles:<ul>"]
   for article in articles:
     html.append(f"<li><p><a href=\"{article.url}\">{'' if article.free else '<strong>'}{article.title}{'' if article.free else '</strong>'}</a> by {article.author} {article.date.strftime('%Y-%m-%d %H:%M')}<br>")
-    desc = article.description
+    desc = article.description.replace("<p>", "").replace("</p>", "").strip()
     if desc.startswith("<p>"):
       desc = desc[3:].lstrip()
     html.append(f"{desc}</p></li>")
